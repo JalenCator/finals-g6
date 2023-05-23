@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Students Attendance Record</title>
+    <link rel="stylesheet" href="project.css" />
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="container">
+
+        <nav>
+            <ul>
+                <li><a href="project.html">
+                        <i class="fas fa-chart-bar"></i>
+                        <span class="nav-item">Attendance Form</span>
+                    </a></li>
+                <li><a href="#">
+                        <i class="fas fa-cog"></i>
+                        <span class="nav-item">Student List</span>
+                    </a></li>
+            </ul>
+        </nav>
+
+        <section class="main">
+            <div class="main-top">
+                <h1 class="bounce">Students Attendance Record</h1>
+            </div>
+
+            <section class="attendance">
+                <div class="attendance-list">
+                    <div class="attendance-top">
+                        <div class="attendance-data">
+                            <h1>Attendance List</h1>
+                        </div>
+                        <div class="attendance-data search">
+                            <input type="text" id="id_number" name="id_number" placeholder="Search ID...">
+                            <button type="submit" id="search">Search  
+                                <i class='bx bx-search' ></i>
+                            </button>
+                            <button type="submit" id="delete">Delete
+                                <i class='bx bx-trash-alt'></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table">
+                        <div class="thead">
+                            <div class="tr">
+                                <div class="th">ID</div>
+                                <div class="th">Firstname</div>
+                                <div class="th">Lastname</div>
+                                <div class="th">Date</div>
+                                <div class="th">Status</div>
+                                <div class="th">Year</div>
+                                <div class="th">Section</div>
+                            </div>
+                        </div>
+
+                        <div class="tbody" id="tbody">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    
+    <script id="listitems" type="text/x-handlebars-template">
+
+        <div class="row" id="logslist">
+            {{#each data}}
+                <div class="tr">
+                    <div class="td">{{id_number}}</div>
+                    <div class="td">{{first_name}}</div>
+                    <div class="td">{{last_name}}</div>
+                    <div class="td">{{date}}</div>
+                    <div class="td">{{status}}</div>
+                    <div class="td">{{year}}</div>
+                    <div class="td">{{section}}</div>
+                </div>
+            {{/each}}
+        </div>
+    </script>
+    <script>
+        $(document).ready(function (){
+            const clearFields = () => {
+            $('input[type="text"]').val('');
+            $('input[type="date"]').val('');
+            $('select').val('');
+        }
+
+        const get = (choice) => {
+            M.Toast.dismissAll();
+            // serialize form data
+            var formData = $("#id_number").serializeArray();
+            const finalUrl = choice ? 'http://172.17.100.12:8081/alsong/cgi-bin/get.o' : 'http://172.17.100.12:8081/alsong/cgi-bin/delete.o';
+
+            $.ajax({
+                url: finalUrl,
+                type: 'POST',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === "success") {
+                        if(choice){
+                            var template = Handlebars.compile($("#listitems").html());
+                            var html = template(response);
+
+                            $("#tbody").html(html);
+                        }else{
+                            document.querySelector('#id_number').value = '';
+                            get(true);
+                        }
+
+                    } else if (response.status === "error") {
+                        console.log(response.message)
+                        console.log(response.message_additional)
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+        get(true);
+        });
+
+    </script>
+</body>
+
+</html>
