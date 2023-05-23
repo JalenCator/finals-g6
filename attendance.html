@@ -128,7 +128,15 @@
                 }
             });
         }
-        get(true);
+            get(true);
+            $('#search').click(function(event) {
+                event.preventDefault();
+                get(true);
+            });
+            $('#delete').click(function(event) {
+                event.preventDefault();
+                get(false);
+            });
         });
 
     </script>
